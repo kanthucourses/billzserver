@@ -4,7 +4,6 @@ public class TaxMaster {
 	private String _id;
 	private String taxName;
 	private Double taxPercentage;
-	private Double taxAmount;
 	private String state;
 	private String country;
 	private String status;
@@ -28,12 +27,7 @@ public class TaxMaster {
 	public void setTaxPercentage(Double taxPercentage) {
 		this.taxPercentage = taxPercentage;
 	}
-	public Double getTaxAmount() {
-		return taxAmount;
-	}
-	public void setTaxAmount(Double taxAmount) {
-		this.taxAmount = taxAmount;
-	}
+	
 	public String getState() {
 		return state;
 	}

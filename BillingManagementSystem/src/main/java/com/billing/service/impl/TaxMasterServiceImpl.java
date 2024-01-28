@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.billing.dto.TaxMasterFilter;
 import com.billing.model.TaxMaster;
 import com.billing.repository.TaxMasterRepository;
 import com.billing.service.TaxMasterService;
@@ -30,9 +31,9 @@ public class TaxMasterServiceImpl implements TaxMasterService{
 		return taxMasterObj;
 	}
 
-	public List<TaxMaster> findAllTaxMasters() {
+	public List<TaxMaster> findAllTaxMasters(TaxMasterFilter taxMasterFilter) {
 		List<TaxMaster> taxMasters = null;
-		taxMasters = taxMasterRepository.findAll();
+		taxMasters = taxMasterRepository.findTaxMasters(taxMasterFilter);
 		return taxMasters;
 	}
 

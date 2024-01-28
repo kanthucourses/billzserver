@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.billing.dto.TaxMasterFilter;
 import com.billing.model.TaxMaster;
 import com.billing.service.TaxMasterService;
 import com.billing.util.AppConstants;
@@ -85,13 +86,13 @@ public class TaxMasterController {
 		return resp;
 	}
 
-	@GetMapping("/findAllTaxMasters")
-	ResponseEntity<?> findAllTaxMasters() {
+	@PostMapping("/findAllTaxMasters")
+	ResponseEntity<?> findAllTaxMasters(@RequestBody TaxMasterFilter taxMasterFilter) {
 		logger.debug(">>findAllTaxMasters");
 		ResponseEntity<?> resp = null;
 		ServiceResponse restResponse = new ServiceResponse();
 		try {
-			List<TaxMaster> taxMasters = taxMasterService.findAllTaxMasters();
+			List<TaxMaster> taxMasters = taxMasterService.findAllTaxMasters(taxMasterFilter);
 			if (taxMasters != null) {
 				restResponse.addDataObject("taxMasters", taxMasters);
 				restResponse = scutils.prepareMobileResponseSuccessStatus(restResponse, "fetched taxMaster details successfully");

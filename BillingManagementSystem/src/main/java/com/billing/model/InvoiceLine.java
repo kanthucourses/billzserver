@@ -1,6 +1,13 @@
 package com.billing.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 public class InvoiceLine {
 	private Long invoiceLineID;
@@ -13,6 +20,7 @@ public class InvoiceLine {
 	private Double serviceCost;
 	private Double amount;
 	private String currency;
+	private List<TaxMasterInfo> taxMasterInfos;
 	private List<TaxDetails> taxDetailsList;
     private String discountType;
     private Double discountPercentage;
@@ -20,8 +28,19 @@ public class InvoiceLine {
     private Double taxAmount;
     private Double grossAmount;
     private Double netAmount;
-
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	private LocalDateTime createdDateTime;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	private LocalDateTime lastUpdatedDateTime;
 	
+	
+	public InvoiceLine() {
+	
+	}
 	public Long getInvoiceLineID() {
 		return invoiceLineID;
 	}
@@ -124,6 +143,35 @@ public class InvoiceLine {
 	}
 	public void setNetAmount(Double netAmount) {
 		this.netAmount = netAmount;
+	}
+	public List<TaxMasterInfo> getTaxMasterInfos() {
+		return taxMasterInfos;
+	}
+	public void setTaxMasterInfos(List<TaxMasterInfo> taxMasterInfos) {
+		this.taxMasterInfos = taxMasterInfos;
+	}
+	
+	public LocalDateTime getCreatedDateTime() {
+		return createdDateTime;
+	}
+	public void setCreatedDateTime(LocalDateTime createdDateTime) {
+		this.createdDateTime = createdDateTime;
+	}
+	public LocalDateTime getLastUpdatedDateTime() {
+		return lastUpdatedDateTime;
+	}
+	public void setLastUpdatedDateTime(LocalDateTime lastUpdatedDateTime) {
+		this.lastUpdatedDateTime = lastUpdatedDateTime;
+	}
+	@Override
+	public String toString() {
+		return "InvoiceLine [invoiceLineID=" + invoiceLineID + ", serviceID=" + serviceID + ", serviceName="
+				+ serviceName + ", serviceIDName=" + serviceIDName + ", serviceCategory=" + serviceCategory
+				+ ", serviceDescription=" + serviceDescription + ", quantity=" + quantity + ", serviceCost="
+				+ serviceCost + ", amount=" + amount + ", currency=" + currency + ", taxMasterInfos=" + taxMasterInfos
+				+ ", taxDetailsList=" + taxDetailsList + ", discountType=" + discountType + ", discountPercentage="
+				+ discountPercentage + ", discountAmount=" + discountAmount + ", taxAmount=" + taxAmount
+				+ ", grossAmount=" + grossAmount + ", netAmount=" + netAmount + "]";
 	}
 	
 

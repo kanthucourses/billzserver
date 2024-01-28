@@ -1,6 +1,10 @@
 package com.billing.model;
 
+import java.math.BigDecimal;
 import java.util.List;
+
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 public class ServiceMaster {
 	private String _id;
@@ -12,7 +16,23 @@ public class ServiceMaster {
 	private String serviceDescription;
 	private OrganizationInfo organizationInfo;
 	private List<TaxMasterInfo> taxMasterInfos;
-    private String discountType; //percentage,amount
+	
+	private BigDecimal height;
+	private BigDecimal length;
+	@Field(targetType = FieldType.DECIMAL128)
+	private BigDecimal checkNum;
+	private BigDecimal weight;
+	private BigDecimal quantity;
+	@Field(targetType = FieldType.DECIMAL128)
+	private BigDecimal dweight;
+	@Field(targetType = FieldType.DECIMAL128)
+	private BigDecimal dquantity;
+	private BigDecimal weightofOneProduct;
+	@Field(targetType = FieldType.DECIMAL128)
+	private BigDecimal dweightofOneProduct;
+
+	
+  //  private String discountType; //percentage,amount
 
 	
 	public String get_id() {
@@ -70,12 +90,59 @@ public class ServiceMaster {
 	public void setTaxMasterInfos(List<TaxMasterInfo> taxMasterInfos) {
 		this.taxMasterInfos = taxMasterInfos;
 	}
-	public String getDiscountType() {
-		return discountType;
+	public BigDecimal getHeight() {
+		return height;
 	}
-	public void setDiscountType(String discountType) {
-		this.discountType = discountType;
+	public void setHeight(BigDecimal height) {
+		this.height = height;
 	}
-
+	public BigDecimal getLength() {
+		return length;
+	}
+	public void setLength(BigDecimal length) {
+		this.length = length;
+	}
+	public BigDecimal getCheckNum() {
+		return checkNum;
+	}
+	public void setCheckNum(BigDecimal checkNum) {
+		this.checkNum = checkNum;
+	}
+	public BigDecimal getWeight() {
+		return weight;
+	}
+	public void setWeight(BigDecimal weight) {
+		this.weight = weight;
+	}
+	public BigDecimal getQuantity() {
+		return quantity;
+	}
+	public void setQuantity(BigDecimal quantity) {
+		this.quantity = quantity;
+	}
+	public BigDecimal getDweight() {
+		return dweight;
+	}
+	public void setDweight(BigDecimal dweight) {
+		this.dweight = dweight;
+	}
+	public BigDecimal getDquantity() {
+		return dquantity;
+	}
+	public void setDquantity(BigDecimal dquantity) {
+		this.dquantity = dquantity;
+	}
+	public BigDecimal getWeightofOneProduct() {
+		return weightofOneProduct;
+	}
+	public void setWeightofOneProduct(BigDecimal weightofOneProduct) {
+		this.weightofOneProduct = weightofOneProduct;
+	}
+	public BigDecimal getDweightofOneProduct() {
+		return dweightofOneProduct;
+	}
+	public void setDweightofOneProduct(BigDecimal dweightofOneProduct) {
+		this.dweightofOneProduct = dweightofOneProduct;
+	}
 
 }

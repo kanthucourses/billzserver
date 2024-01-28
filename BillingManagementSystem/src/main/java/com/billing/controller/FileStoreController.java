@@ -68,8 +68,8 @@ ResponseEntity<byte[]> viewFiles(@PathVariable("fileName") String fileName) thro
 			.body(IOUtils.toByteArray(fileResource.getInputStream())); 
 }
 
-@GetMapping("/fileView/{fileName}")		
-ResponseEntity<?> fileView(@PathVariable("fileName") String fileName) throws Exception {
+@GetMapping("/fileView")		
+ResponseEntity<?> fileView(@RequestParam(required =true, value = "fileName") String fileName) throws Exception {
 	ResponseEntity<?> resp= null;
 	ServiceResponse restResponse=new ServiceResponse();
 	try {
@@ -108,8 +108,8 @@ public String deleteMultipleFiles(@PathVariable("fileNames") List<String> fileNa
 	return "delete";
 }
 
-@DeleteMapping("/singledelete/{fileName}")
-public ResponseEntity<?> deleteSingleFiles(@PathVariable("fileName") String fileName){
+@DeleteMapping("/singledelete")
+public ResponseEntity<?> deleteSingleFiles(@RequestParam(required =true, value = "fileName") String fileName){
 	ResponseEntity<?> resp= null;
 	ServiceResponse restResponse=new ServiceResponse();
 	try {
