@@ -1,5 +1,6 @@
 package com.billing.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,10 @@ public class InvoiceServiceImpl implements InvoiceService{
 
 	@Autowired
 	private InvoiceRepository invoiceRepository;
+	
+	public String gen() {
+		return RandomStringUtils.randomNumeric(8);
+	}
 
 	public Invoice saveInvoice(Invoice invoice) {
 		final String desc = "DESC";
@@ -43,29 +49,43 @@ public class InvoiceServiceImpl implements InvoiceService{
 			organizationIDName = invoice.getOrganizationInfo().getOrganizationIDName();
 		}
 
-		if(invoice.getInvoiceLines() != null && invoice.getInvoiceLines().size()>0) {
-			for(int i=0; i<invoice.getInvoiceLines().size();i++) {
-				InvoiceLine invoiceLine = invoice.getInvoiceLines().get(i);
-				if(i == 0) {
-					if(invoiceLine.getInvoiceLineID() == null) {
-						long invoiceLineID = nummberGeneratorForInvoiceLine.getAndIncrement();
-						invoiceLine.setInvoiceLineID(invoiceLineID);
+		if(invoice.getInvoiceStatus() != null && invoice.getInvoiceStatus().equals("Confirmed")) {
+			if(invoice.getInvoiceLines() != null && invoice.getInvoiceLines().size()>0) {
+				for(int i=0; i<invoice.getInvoiceLines().size();i++) {
+					InvoiceLine invoiceLine = invoice.getInvoiceLines().get(i);
+					if(i == 0) {
+						if(invoiceLine.getInvoiceLineID() == null) {
+							long invoiceLineID = nummberGeneratorForInvoiceLine.getAndIncrement();
+							invoiceLine.setInvoiceLineID(invoiceLineID);
+						}
+					}
+					else {
+						this.sortInvoiceLines(invoice.getInvoiceLines(),desc);
+						System.out.println("invLines>"+invoice.getInvoiceLines());
+						InvoiceLine invoiceLineObj = invoice.getInvoiceLines().get(0);
+						if(invoiceLine.getInvoiceLineID() == null) {
+							AtomicLong oldDBValue = new AtomicLong(invoiceLineObj.getInvoiceLineID());
+							long invoiceLineID = oldDBValue.incrementAndGet();
+							invoiceLine.setInvoiceLineID(invoiceLineID);
+						}
 					}
 				}
-				else {
-					this.sortInvoiceLines(invoice.getInvoiceLines(),desc);
-					System.out.println("invLines>"+invoice.getInvoiceLines());
-					InvoiceLine invoiceLineObj = invoice.getInvoiceLines().get(0);
-					if(invoiceLine.getInvoiceLineID() == null) {
-						AtomicLong oldDBValue = new AtomicLong(invoiceLineObj.getInvoiceLineID());
-						long invoiceLineID = oldDBValue.incrementAndGet();
-						invoiceLine.setInvoiceLineID(invoiceLineID);
+				this.sortInvoiceLines(invoice.getInvoiceLines(),asc);
+			}
+		}
+		else {
+			if(invoice.getInvoiceLines() != null && invoice.getInvoiceLines().size()>0) {
+				for(int i=0; i<invoice.getInvoiceLines().size();i++) {
+					InvoiceLine invoiceLine = invoice.getInvoiceLines().get(i);
+					if(invoiceLine.getLineID() == null || invoiceLine.getLineID().isEmpty()) {
+						invoiceLine.setLineID(gen());
 					}
 				}
 			}
-			this.sortInvoiceLines(invoice.getInvoiceLines(),asc);
 		}
 
+		invoice.setCreatedDateTime(LocalDateTime.now());
+		invoice.setInvoiceStatus("Created");
 		if(invoice.getInvoiceID() == null) {
 			Invoice invoiceDbObj = invoiceRepository.findLatestInvoice(organizationIDName);
 			if(invoiceDbObj != null) {
@@ -110,14 +130,43 @@ public class InvoiceServiceImpl implements InvoiceService{
 	}
 
 	public Invoice updateInvoice(Invoice invoice) {
+		AtomicLong nummberGeneratorForInvoiceLine = new AtomicLong(101);
+		final String desc = "DESC";
+		final String asc = "ASC";
 		Invoice invoiceObj = null;
 		Invoice invoiceDbObj = this.findInvoiceById(invoice.get_id());
 		List<InvoiceLine> existedInvoiceLines = null;
 		if(invoiceDbObj != null) {
 			existedInvoiceLines = invoiceDbObj.getInvoiceLines();
 		}
+		invoice.setLastUpdatedDateTime(LocalDateTime.now());
+
 		List<InvoiceLine> mergedInvoiceLines = this.mergeInvoiceLines(existedInvoiceLines, invoice.getInvoiceLines());
 		invoice.setInvoiceLines(mergedInvoiceLines);
+		if(invoice.getInvoiceStatus() != null && invoice.getInvoiceStatus().equals("Confirmed")) {
+			if(invoice.getInvoiceLines() != null && invoice.getInvoiceLines().size()>0) {
+				for(int i=0; i<invoice.getInvoiceLines().size();i++) {
+					InvoiceLine invoiceLine = invoice.getInvoiceLines().get(i);
+					if(i == 0) {
+						if(invoiceLine.getInvoiceLineID() == null) {
+							long invoiceLineID = nummberGeneratorForInvoiceLine.getAndIncrement();
+							invoiceLine.setInvoiceLineID(invoiceLineID);
+						}
+					}
+					else {
+						this.sortInvoiceLines(invoice.getInvoiceLines(),desc);
+						System.out.println("invLines>"+invoice.getInvoiceLines());
+						InvoiceLine invoiceLineObj = invoice.getInvoiceLines().get(0);
+						if(invoiceLine.getInvoiceLineID() == null) {
+							AtomicLong oldDBValue = new AtomicLong(invoiceLineObj.getInvoiceLineID());
+							long invoiceLineID = oldDBValue.incrementAndGet();
+							invoiceLine.setInvoiceLineID(invoiceLineID);
+						}
+					}
+				}
+				this.sortInvoiceLines(invoice.getInvoiceLines(),asc);
+			}
+		}
 		invoiceObj = invoiceRepository.save(invoice);
 		return invoiceObj;
 	}
@@ -133,15 +182,19 @@ public class InvoiceServiceImpl implements InvoiceService{
 				boolean lineUpdated = false;
 				for (int i = 0; i < mergedLines.size(); i++) {
 					InvoiceLine mergedLine = mergedLines.get(i);
-					if (mergedLine.getInvoiceLineID() != null && updatedLine.getInvoiceLineID() != null && 
-							mergedLine.getInvoiceLineID().equals(updatedLine.getInvoiceLineID())) {
+					if (mergedLine.getLineID() != null && updatedLine.getLineID() != null && 
+							mergedLine.getLineID().equals(updatedLine.getLineID())) {
 						mergedLines.set(i, updatedLine);
 						lineUpdated = true;
 						break;
 					}
 				}
 				if (!lineUpdated) {
-					if(updatedLine.getInvoiceLineID() == null) {
+					if(updatedLine.getLineID() == null || updatedLine.getLineID().isEmpty()) {
+						updatedLine.setLineID(gen());
+					}
+					/*
+					if(updatedLine.getLineID() == null) {
 						//updatedLine.setCreatedDateTime(LocalDateTime.now());
 						this.sortInvoiceLines(mergedLines,desc);
 						InvoiceLine invoiceLineObj = mergedLines.get(0);
@@ -149,6 +202,7 @@ public class InvoiceServiceImpl implements InvoiceService{
 						long invoiceLineID = oldDBValue.incrementAndGet();
 						updatedLine.setInvoiceLineID(invoiceLineID);
 					}
+					*/
 					mergedLines.add(updatedLine);
 				}
 			}
@@ -237,9 +291,9 @@ public class InvoiceServiceImpl implements InvoiceService{
 		return invoice;
 	}
 
-	public Invoice deleteInvoiceById(String _id,Long invoiceLineID,String organizationIDName) {
+	public Invoice deleteInvoiceById(String _id,String lineID,String organizationIDName) {
 		Invoice invoiceObj = null;
-		 invoiceObj = invoiceRepository.deleteByInvoiceId(_id, invoiceLineID, organizationIDName);
+		 invoiceObj = invoiceRepository.deleteByInvoiceId(_id, lineID, organizationIDName);
 		return invoiceObj;
 	}
 	

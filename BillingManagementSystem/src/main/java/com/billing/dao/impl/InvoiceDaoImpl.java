@@ -151,7 +151,7 @@ public class InvoiceDaoImpl implements InvoiceDao{
 		return invoice;
 	}
 	
-	public Invoice deleteByInvoiceId(String _id,Long invoiceLineID,String organizationIDName){
+	public Invoice deleteByInvoiceId(String _id,String lineID,String organizationIDName){
 		logger.debug(">>deleteByInvoiceId");
 		Invoice invoice = null;
 		Invoice invoiceUpdatedObj = null;
@@ -162,13 +162,13 @@ public class InvoiceDaoImpl implements InvoiceDao{
 			searchQuery.addCriteria(Criteria.where("organizationInfo.organizationIDName").is(organizationIDName));
 			invoice = mongoTemplate.findOne(searchQuery, Invoice.class, RequestConstants.Collections.INVOICE);
 			if(invoice != null) {
-				if(_id != null && !_id.isEmpty() && invoiceLineID != null) {
+				if(_id != null && !_id.isEmpty() && lineID != null) {
 					List<InvoiceLine> invoiceLines= invoice.getInvoiceLines();
 					if(invoiceLines != null && invoiceLines.size()>0) {
 						for(int i=0;i<invoiceLines.size();i++) {
 							InvoiceLine invoiceLine = invoiceLines.get(i);
-							if(invoiceLine != null && invoiceLine.getInvoiceLineID() != null && invoiceLineID != null &&
-									invoiceLine.getInvoiceLineID() == invoiceLineID) {
+							if(invoiceLine != null && invoiceLine.getLineID() != null && lineID != null &&
+									invoiceLine.getLineID().equals(lineID)) {
 								invoiceLines.remove(invoiceLine);
 							}
 						}

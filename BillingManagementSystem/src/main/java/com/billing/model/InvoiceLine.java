@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 public class InvoiceLine {
+	private String lineID;
 	private Long invoiceLineID;
 	private String serviceID;
 	private String serviceName;
@@ -40,6 +41,13 @@ public class InvoiceLine {
 	
 	public InvoiceLine() {
 	
+	}
+	
+	public String getLineID() {
+		return lineID;
+	}
+	public void setLineID(String lineID) {
+		this.lineID = lineID;
 	}
 	public Long getInvoiceLineID() {
 		return invoiceLineID;

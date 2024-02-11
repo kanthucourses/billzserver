@@ -10,9 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.billing.exception.AppDaoException;
+import com.billing.exception.AppServiceException;
 import com.billing.model.Organization;
 import com.billing.repository.OrganizationRepository;
 import com.billing.service.OrganizationService;
+import com.billing.util.AppConstants;
 
 @Service
 @Transactional
@@ -26,9 +29,38 @@ public class OrganizationServiceImpl implements OrganizationService{
 	private OrganizationRepository organizationRepository;
 	
 
-	public Organization saveOrganization(Organization organization) {
+	public Organization saveOrganization(Organization organization) throws AppServiceException {
 		Organization organizationObj = null;
-		organizationObj = organizationRepository.save(organization);
+		Organization organizationDbObj = null;
+		try {
+			if(organization != null) {
+				if(organization.getOrganizationID() == null || organization.getOrganizationID().isEmpty() 
+						|| organization.getOrganizationName() == null || organization.getOrganizationName().isEmpty() ) {
+					throw new AppServiceException(
+							AppConstants.INPUT_ERR_CODE,
+							"organizationID and organizationName are maditory");
+				}
+				organizationDbObj = organizationRepository.findByOrganizationIDCaseInsensitive(organization.getOrganizationID());
+				if(organizationDbObj != null) {
+					throw new AppServiceException(
+							AppConstants.DUPLICATECODE,
+							"organizationID should not be duplicate");
+				}
+				organizationDbObj = organizationRepository.findByOrganizationNameCaseInsensitive(organization.getOrganizationName());
+				if(organizationDbObj != null) {
+					throw new AppServiceException(
+							AppConstants.DUPLICATECODE,
+							"organizationName should not be duplicate");
+				}
+				organizationObj = organizationRepository.save(organization);
+			}
+		}
+		catch (Exception ae) {
+			throw new AppServiceException(
+					"",
+					ae.getMessage(),
+					ae);
+		}
 		return organizationObj;
 	}
 

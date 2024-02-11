@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.billing.dto.TaxMasterFilter;
+import com.billing.exception.AppServiceException;
 import com.billing.model.TaxMaster;
 import com.billing.service.TaxMasterService;
 import com.billing.util.AppConstants;
@@ -51,13 +51,27 @@ public class TaxMasterController {
 				restResponse = scutils.prepareMobileResponseInvalidData(restResponse, "taxMaster is not saved");
 				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
 			}
-		} catch (Exception e) {
-			restResponse = scutils.prepareMobileResponseErrorStatus(restResponse, AppConstants.ERRORCODE,
-					e.getMessage());
+		} 
+		catch (AppServiceException ae) {
+			logger.error("Error occured\t" + ae.getMessage(),ae);
+			restResponse = scutils.prepareMobileResponseErrorStatus(
+					restResponse,
+					ae.getErrorCode(),
+					ae.getMessage());
 			resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-			logger.debug(">>Exceptions are: " + restResponse);
-			e.printStackTrace();
+
+		} catch (Exception e) {
+			String error[] = null;
+			if(e.getMessage() != null){
+				error = e.getMessage().split(",");
+			}
+			if(error != null && error.length>0)
+				restResponse = scutils.prepareMobileResponseSessionInvalidStatus(restResponse,"201",error[0]);
+			else
+				restResponse = scutils.prepareMobileResponseSessionInvalidStatus(restResponse,"201",e.getMessage());	
+			resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+
 		return resp;
 	}
 

@@ -140,7 +140,7 @@ public class InvoiceController {
 	
 	@DeleteMapping("/deleteInvoiceById")
 	ResponseEntity<?> deleteInvoiceById(@RequestParam(required =true, value = "_id") String _id,
-			@RequestParam(required =false, value = "invoiceLineID") Long invoiceLineID,
+			@RequestParam(required =false, value = "lineID") String lineID,
 			@RequestParam(required =true, value = "organizationIDName") String organizationIDName) {
 		logger.debug(">>deleteInvoiceById");
 		ResponseEntity<?> resp = null;
@@ -152,7 +152,7 @@ public class InvoiceController {
 				restResponse = scutils.prepareMobileResponseSuccessStatus(restResponse, "unable to find invoice");
 				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
 			}
-			Invoice invoice = invoiceService.deleteInvoiceById(_id, invoiceLineID, organizationIDName);
+			Invoice invoice = invoiceService.deleteInvoiceById(_id, lineID, organizationIDName);
 			if (invoice != null) {
 				restResponse.addDataObject("invoice", invoice);
 				restResponse = scutils.prepareMobileResponseSuccessStatus(restResponse, "deleted invoice successfully");

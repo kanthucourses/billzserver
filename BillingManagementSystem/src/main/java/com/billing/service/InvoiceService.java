@@ -15,7 +15,7 @@ public interface InvoiceService {
 
 	public Invoice findInvoiceById(String _id);
 	
-	public Invoice deleteInvoiceById(String _id,Long invoiceLineID,String organizationIDName);
+	public Invoice deleteInvoiceById(String _id,String lineID,String organizationIDName);
 	
 	public InvoicePaginationResponse findAllInvoicesWithPagination(InvoiceFilter invoiceFilter);
 	

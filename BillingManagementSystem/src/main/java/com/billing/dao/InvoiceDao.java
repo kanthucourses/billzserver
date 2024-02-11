@@ -11,6 +11,6 @@ import com.billing.model.Invoice;
 public interface InvoiceDao {
 	public List<Invoice> findInvoices(InvoiceFilter invoiceFilter);
 	public Invoice findLatestInvoice(String organizationIDName);
-	public Invoice deleteByInvoiceId(String _id,Long invoiceLineID,String organizationIDName);
+	public Invoice deleteByInvoiceId(String _id,String lineID,String organizationIDName);
 	public Page<Invoice> findInvoicesWithPagination(InvoiceFilter invoiceFilter,Pageable pageable);
 }

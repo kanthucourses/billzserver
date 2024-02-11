@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.billing.dao.TaxMasterDao;
 import com.billing.dto.TaxMasterFilter;
+import com.billing.exception.AppDaoException;
 import com.billing.model.TaxMaster;
 import com.billing.service.OrganizationService;
 import com.billing.util.RequestConstants;
@@ -26,7 +27,7 @@ public class TaxMasterDaoImpl implements TaxMasterDao{
 	@Autowired
 	private OrganizationService organizationService;
 
-	public List<TaxMaster> findTaxMasters(TaxMasterFilter taxMasterFilter) {
+	public List<TaxMaster> findTaxMasters(TaxMasterFilter taxMasterFilter) throws AppDaoException {
 		logger.debug(">>findTaxMasters..taxMasterFilter" + taxMasterFilter);
 		List<TaxMaster> taxMasterList = new ArrayList<TaxMaster>();
 		Query searchQuery = new Query();
@@ -38,9 +39,13 @@ public class TaxMasterDaoImpl implements TaxMasterDao{
 				searchQuery.addCriteria(Criteria.where("organizationInfo.organizationIDName").is(taxMasterFilter.getOrganizationIDName()));
 			}
 			taxMasterList = mongoTemplate.find(searchQuery, TaxMaster.class,RequestConstants.Collections.TAX_MASTER);	
-		} catch (Exception e) {
-			logger.error("Error occured\t" + e.getMessage(), e);
-		}
+		}  catch (Exception e) {
+			throw new AppDaoException(
+					"",
+					"",
+					e);
+
+		} 
 		logger.debug("<<findTaxMasters>taxMasterList"+taxMasterList);
 		return taxMasterList;
 	}
