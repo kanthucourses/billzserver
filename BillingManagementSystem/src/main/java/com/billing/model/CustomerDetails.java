@@ -6,7 +6,9 @@ public class CustomerDetails {
 	private String phoneNumber;
 	private String alternativePhoneNumber;
 	private String emailID;
-
+	private Integer age;
+	private String gender;
+	
 	private String address;
 	private String city;
 	private String state;
@@ -66,6 +68,25 @@ public class CustomerDetails {
 	}
 	public void setPincode(String pincode) {
 		this.pincode = pincode;
+	}
+	public Integer getAge() {
+		return age;
+	}
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	@Override
+	public String toString() {
+		return "CustomerDetails [customerName=" + customerName + ", phoneNumber=" + phoneNumber
+				+ ", alternativePhoneNumber=" + alternativePhoneNumber + ", emailID=" + emailID + ", age=" + age
+				+ ", gender=" + gender + ", address=" + address + ", city=" + city + ", state=" + state + ", country="
+				+ country + ", pincode=" + pincode + "]";
 	}
 
 	

@@ -16,7 +16,6 @@ public class BillingManagementSystemApplication extends SpringBootServletInitial
 	}
 	public static void main(String[] args) {
 		SpringApplication.run(BillingManagementSystemApplication.class, args);
-		
 	}
 
 }

@@ -163,6 +163,17 @@ public class Invoice {
 	public void setPaymentStatus(String paymentStatus) {
 		this.paymentStatus = paymentStatus;
 	}
+	@Override
+	public String toString() {
+		return "Invoice [_id=" + _id + ", invoiceID=" + invoiceID + ", customerDetails=" + customerDetails
+				+ ", invoiceLines=" + invoiceLines + ", invoiceDate=" + invoiceDate + ", dueDate=" + dueDate
+				+ ", createdDateTime=" + createdDateTime + ", lastUpdatedDateTime=" + lastUpdatedDateTime
+				+ ", organizationInfo=" + organizationInfo + ", paymentMethod=" + paymentMethod + ", totalGrossAmount="
+				+ totalGrossAmount + ", totalTaxPercentage=" + totalTaxPercentage + ", totalTaxAmount=" + totalTaxAmount
+				+ ", totalNetAmount=" + totalNetAmount + ", totalDiscountAmount=" + totalDiscountAmount
+				+ ", taxDetailsList=" + taxDetailsList + ", invoiceStatus=" + invoiceStatus + ", paymentStatus="
+				+ paymentStatus + "]";
+	}
 	
 	
 }

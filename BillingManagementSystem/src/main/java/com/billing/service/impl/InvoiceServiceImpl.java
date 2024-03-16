@@ -1,10 +1,15 @@
 package com.billing.service.impl;
 
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -18,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.billing.dto.InvoiceFilter;
 import com.billing.dto.InvoicePaginationResponse;
+import com.billing.dto.InvoiceRevenueResponse;
+import com.billing.dto.QuantityByServiceIDName;
 import com.billing.model.Invoice;
 import com.billing.model.InvoiceLine;
 import com.billing.repository.InvoiceRepository;
@@ -297,6 +304,12 @@ public class InvoiceServiceImpl implements InvoiceService{
 		return invoiceObj;
 	}
 	
+	public List<Invoice> findInvoiceSummaryReport(InvoiceFilter invoiceFilter) {
+		List<Invoice> invoices = null;
+		invoices = invoiceRepository.findInvoices(invoiceFilter);
+		return invoices;
+	}
+	
 	public InvoicePaginationResponse findAllInvoicesWithPagination(InvoiceFilter invoiceFilter) {
 		List<Invoice> invoices = null;
 		Page<Invoice> invoicePageList = null;
@@ -326,4 +339,92 @@ public class InvoiceServiceImpl implements InvoiceService{
 		return input+1;
 	}
 
+	public List<Invoice> findInvoicesByFilter(InvoiceFilter invoiceFilter) {
+		List<Invoice> invoices = null;
+		invoices = invoiceRepository.findInvoicesByFilter(invoiceFilter);
+		return invoices;
+	}
+	
+	public List<InvoiceRevenueResponse> findInvoicesRevenueByFilter(InvoiceFilter invoiceFilter) {
+	    List<InvoiceRevenueResponse> invoiceRevenueResponses = new ArrayList<>();
+	    Integer yearInput = null;
+	    if(invoiceFilter.getYear() != null) {
+	    	yearInput = invoiceFilter.getYear();
+	    }
+	    LocalDate startOfYear = Year.of(yearInput).atDay(1);
+        LocalDate endOfYear = Year.of(yearInput).atDay(Year.of(yearInput).length());
+        invoiceFilter.setInvoiceDateFrom(startOfYear);
+        invoiceFilter.setInvoiceDateTo(endOfYear);
+	    List<Invoice> invoices = invoiceRepository.findInvoicesByFilter(invoiceFilter);
+
+	    if (invoices != null && !invoices.isEmpty()) {
+	        Map<String, Double> monthlyRevenueMap = new HashMap<>();
+	        
+	        for (int month = 1; month <= 12; month++) {
+                monthlyRevenueMap.put(yearInput + "-" + String.format("%02d", month), 0.0);
+	            //for (int year = invoiceFilter.getStartYear(); year <= invoiceFilter.getEndYear(); year++) {
+	            //    monthlyRevenueMap.put(year + "-" + String.format("%02d", month), 0.0);
+	            //}
+	        }
+	        
+	        // Calculate total net amount for each month
+	        for (Invoice invoice : invoices) {
+	            if (invoice.getInvoiceDate() != null) {
+	            	Double totalNetAmount = 0.0;
+	            	if(invoice.getTotalNetAmount() != null) {
+	            		totalNetAmount = invoice.getTotalNetAmount();
+	            	}
+	                int month = invoice.getInvoiceDate().getMonthValue();
+	                int year = invoice.getInvoiceDate().getYear();
+	                String key = year + "-" + String.format("%02d", month);
+	                double netTotalNetAmount = monthlyRevenueMap.getOrDefault(key, 0.0) + totalNetAmount;
+	                monthlyRevenueMap.put(key, netTotalNetAmount);
+	            }
+	        }
+	        
+	        for (Map.Entry<String, Double> entry : monthlyRevenueMap.entrySet()) {
+	            InvoiceRevenueResponse invoiceRevenueResponse = new InvoiceRevenueResponse();
+	            invoiceRevenueResponse.setMonthYear(entry.getKey());
+	            invoiceRevenueResponse.setTotalNetAmount(entry.getValue());
+	            invoiceRevenueResponses.add(invoiceRevenueResponse);
+	        }
+	    }
+	    
+	    return invoiceRevenueResponses;
+	}
+	
+	
+	public List<QuantityByServiceIDName> findServicesDataByFilter(InvoiceFilter invoiceFilter) {
+	    Integer yearInput = null;
+	    if(invoiceFilter.getYear() != null) {
+	    	yearInput = invoiceFilter.getYear();
+	    	 LocalDate startOfYear = Year.of(yearInput).atDay(1);
+	         LocalDate endOfYear = Year.of(yearInput).atDay(Year.of(yearInput).length());
+	         invoiceFilter.setInvoiceDateFrom(startOfYear);
+	         invoiceFilter.setInvoiceDateTo(endOfYear);
+	    }
+	   
+	    List<QuantityByServiceIDName> quantityByServiceIDNameList = invoiceRepository.getServiceIDNamesAndQuantities(invoiceFilter);
+	    
+	    return quantityByServiceIDNameList;
+	}
+	
+	
+	/*
+	public Double getRevenue(Invoice invoice) {
+		Double totalNetAmount = 0d;
+		if(invoice != null) {
+			if(invoice.getInvoiceLines() != null && invoice.getInvoiceLines() .size()>0) {
+				for(InvoiceLine invoiceLine : invoice.getInvoiceLines()) {
+					if(invoiceLine != null) {
+						if(invoiceLine.getT)
+					}
+				}
+			}
+		}
+		return null;
+		
+	}
+	*/
+	
 }

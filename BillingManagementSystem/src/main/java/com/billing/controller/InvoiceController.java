@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.billing.dto.InvoiceFilter;
 import com.billing.dto.InvoicePaginationResponse;
+import com.billing.dto.InvoiceRevenueResponse;
+import com.billing.dto.QuantityByServiceIDName;
 import com.billing.model.Invoice;
 import com.billing.service.InvoiceService;
 import com.billing.util.AppConstants;
@@ -44,6 +46,7 @@ public class InvoiceController {
 		ResponseEntity<?> resp = null;
 		ServiceResponse restResponse = new ServiceResponse();
 		try {
+			//System.out.println("invoice>"+invoice);
 			Invoice invoiceObj = invoiceService.saveInvoice(invoice);
 			if (invoiceObj != null) {
 				restResponse.addDataObject("invoice", invoiceObj);
@@ -184,6 +187,81 @@ public class InvoiceController {
 				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
 			} else {
 				restResponse = scutils.prepareMobileResponseInvalidData(restResponse, "invoice details not found");
+				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
+			}
+		} catch (Exception e) {
+			restResponse = scutils.prepareMobileResponseErrorStatus(restResponse, AppConstants.ERRORCODE,
+					e.getMessage());
+			resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+			logger.debug(">>Exceptions are: " + restResponse);
+			e.printStackTrace();
+		}
+		return resp;
+	}
+
+	@PostMapping("/findInvoiceSummaryReport")
+	ResponseEntity<?> findInvoiceSummaryReport(@RequestBody InvoiceFilter invoiceFilter) {
+		logger.debug(">>findInvoiceSummaryReport");
+		ResponseEntity<?> resp = null;
+		ServiceResponse restResponse = new ServiceResponse();
+		try {
+			List<Invoice> invoices = invoiceService.findInvoicesByFilter(invoiceFilter);
+			if (invoices != null) {
+				restResponse.addDataObject("invoices", invoices);
+				restResponse = scutils.prepareMobileResponseSuccessStatus(restResponse, "fetched invoice details successfully");
+				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
+			} else {
+				restResponse = scutils.prepareMobileResponseInvalidData(restResponse, "invoice details not found");
+				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
+			}
+		} catch (Exception e) {
+			restResponse = scutils.prepareMobileResponseErrorStatus(restResponse, AppConstants.ERRORCODE,
+					e.getMessage());
+			resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+			logger.debug(">>Exceptions are: " + restResponse);
+			e.printStackTrace();
+		}
+		return resp;
+	}
+
+	@PostMapping("/findInvoicesRevenueByFilter")
+	ResponseEntity<?> findInvoicesRevenueByFilter(@RequestBody InvoiceFilter invoiceFilter) {
+		logger.debug(">>findInvoicesRevenueByFilter");
+		ResponseEntity<?> resp = null;
+		ServiceResponse restResponse = new ServiceResponse();
+		try {
+			List<InvoiceRevenueResponse> invoices = invoiceService.findInvoicesRevenueByFilter(invoiceFilter);
+			if (invoices != null) {
+				restResponse.addDataObject("invoices", invoices);
+				restResponse = scutils.prepareMobileResponseSuccessStatus(restResponse, "fetched invoice details successfully");
+				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
+			} else {
+				restResponse = scutils.prepareMobileResponseInvalidData(restResponse, "invoice details not found");
+				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
+			}
+		} catch (Exception e) {
+			restResponse = scutils.prepareMobileResponseErrorStatus(restResponse, AppConstants.ERRORCODE,
+					e.getMessage());
+			resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+			logger.debug(">>Exceptions are: " + restResponse);
+			e.printStackTrace();
+		}
+		return resp;
+	}
+	
+	@PostMapping("/findServicesData")
+	ResponseEntity<?> findServicesData(@RequestBody InvoiceFilter invoiceFilter) {
+		logger.debug(">>findServicesData");
+		ResponseEntity<?> resp = null;
+		ServiceResponse restResponse = new ServiceResponse();
+		try {
+			List<QuantityByServiceIDName> quantityByServiceIDNameList = invoiceService.findServicesDataByFilter(invoiceFilter);
+			if (quantityByServiceIDNameList != null) {
+				restResponse.addDataObject("invoiceServicesData", quantityByServiceIDNameList);
+				restResponse = scutils.prepareMobileResponseSuccessStatus(restResponse, "fetched details successfully");
+				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
+			} else {
+				restResponse = scutils.prepareMobileResponseInvalidData(restResponse, "details not found");
 				resp = new ResponseEntity<ServiceResponse>(restResponse, HttpStatus.OK);
 			}
 		} catch (Exception e) {
